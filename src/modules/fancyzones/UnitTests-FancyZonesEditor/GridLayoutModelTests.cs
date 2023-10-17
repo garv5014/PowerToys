@@ -92,4 +92,67 @@ public class GridLayoutModelTests
 
         Assert.IsTrue(gridLayoutModel.IsModelValid(), "GridLayoutModel with valid properties should be valid.");
     }
+
+    [TestMethod]
+    public void InitColumnsShouldSetValidColumnPercents()
+    {
+        GridLayoutModel gridLayoutModel = new GridLayoutModel();
+        gridLayoutModel.TemplateZoneCount = 2;
+        gridLayoutModel.Type = LayoutType.Columns;
+
+        gridLayoutModel.InitTemplateZones();
+
+        Assert.AreEqual(2, gridLayoutModel.ColumnPercents.Count);
+        Assert.AreEqual(5000, gridLayoutModel.ColumnPercents[0]);
+        Assert.AreEqual(5000, gridLayoutModel.ColumnPercents[1]);
+    }
+
+    [TestMethod]
+    public void InitRowsShouldSetValidRowPercents()
+    {
+        GridLayoutModel gridLayoutModel = new GridLayoutModel();
+        gridLayoutModel.TemplateZoneCount = 3;
+        gridLayoutModel.Type = LayoutType.Rows;
+
+        gridLayoutModel.InitTemplateZones();
+
+        Assert.AreEqual(3, gridLayoutModel.RowPercents.Count);
+        Assert.AreEqual(3333, gridLayoutModel.RowPercents[0]);
+        Assert.AreEqual(3333, gridLayoutModel.RowPercents[1]);
+        Assert.AreEqual(3334, gridLayoutModel.RowPercents[2]); // Last one gets left over percentage
+    }
+
+    [TestMethod]
+    public void InitGridPerfectlyDivisibleMakesPerfectGrid()
+    {
+        GridLayoutModel gridLayoutModel = new GridLayoutModel();
+        gridLayoutModel.TemplateZoneCount = 4;
+        gridLayoutModel.Type = LayoutType.Grid;
+
+        gridLayoutModel.InitTemplateZones();
+
+        Assert.AreEqual(2, gridLayoutModel.Rows);
+        Assert.AreEqual(2, gridLayoutModel.Columns);
+
+        // Perfect Grid means no cells share same 'id'
+        var ids = gridLayoutModel.CellChildMap.Cast<int>();
+        Assert.AreEqual(gridLayoutModel.TemplateZoneCount, ids.Count());
+    }
+
+    [TestMethod]
+    public void InitGridNotPerfectlyDivisibleLastCellsGetCombined()
+    {
+        GridLayoutModel gridLayoutModel = new GridLayoutModel();
+        gridLayoutModel.TemplateZoneCount = 5;
+        gridLayoutModel.Type = LayoutType.Grid;
+
+        gridLayoutModel.InitTemplateZones();
+
+        Assert.AreEqual(2, gridLayoutModel.Rows);
+        Assert.AreEqual(3, gridLayoutModel.Columns);
+
+        // Last cells share same 'id' so they get combined
+        Assert.AreEqual(4, gridLayoutModel.CellChildMap[1, 1]);
+        Assert.AreEqual(4, gridLayoutModel.CellChildMap[1, 2]);
+    }
 }

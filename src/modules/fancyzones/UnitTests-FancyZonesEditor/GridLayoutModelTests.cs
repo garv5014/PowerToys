@@ -155,4 +155,23 @@ public class GridLayoutModelTests
         Assert.AreEqual(4, gridLayoutModel.CellChildMap[1, 1]);
         Assert.AreEqual(4, gridLayoutModel.CellChildMap[1, 2]);
     }
+
+    [TestMethod]
+    [DynamicData(nameof(GetGridLayoutModelTestData), DynamicDataSourceType.Method)]
+    public void GridLayoutModelIsValid(int rows, int columns, bool expected)
+    {
+        GridLayoutModel gridLayoutModel = new GridLayoutModel();
+        gridLayoutModel.Rows = rows;
+        gridLayoutModel.Columns = columns;
+        Assert.AreEqual(expected, gridLayoutModel.IsModelValid());
+    }
+
+    public static IEnumerable<object[]> GetGridLayoutModelTestData()
+    {
+        yield return new object[] { 0, 0, false };
+        yield return new object[] { 1, 1, false };
+        yield return new object[] { 2, 1, false };
+        yield return new object[] { 1, 2, false };
+        yield return new object[] { 2, 2, true };
+    }
 }

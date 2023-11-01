@@ -13,13 +13,15 @@ public class LayoutHotkeysModelTests
 
     public LayoutHotkeysModel Model { get; set; } = new LayoutHotkeysModel();
 
+    private List<string> propertiesChanged = new();
+
     [TestInitialize]
     public void TestInitialize()
     {
         Model = new();
         Model.PropertyChanged += (object? sender, System.ComponentModel.PropertyChangedEventArgs e) =>
         {
-            PropertyChangedCalled = true;
+            propertiesChanged.Add(e.PropertyName ?? string.Empty);
         };
     }
 
@@ -27,6 +29,7 @@ public class LayoutHotkeysModelTests
     public void TestCleanup()
     {
         PropertyChangedCalled = false;
+        propertiesChanged.Clear();
     }
 
     [TestMethod]
@@ -37,7 +40,7 @@ public class LayoutHotkeysModelTests
             Assert.AreEqual(string.Empty, Model.SelectedKeys[key]);
         }
 
-        Assert.AreEqual(PropertyChangedCalled, false);
+        Assert.AreEqual(propertiesChanged.Count, 0);
     }
 
     [TestMethod]
@@ -50,7 +53,7 @@ public class LayoutHotkeysModelTests
         Model.SelectKey("2", layoutId);
 
         Assert.AreEqual(string.Empty, Model.SelectedKeys[initialHotKey]);
-        Assert.AreEqual(PropertyChangedCalled, true);
+        CollectionAssert.AreEquivalent(new List<string>() { "SelectKey", "SelectKey" }, propertiesChanged);
     }
 
     [TestMethod]
@@ -59,6 +62,7 @@ public class LayoutHotkeysModelTests
         var noneOption = "None"; // Will this break if the localization in a test is different?
 
         Assert.AreEqual(noneOption, Model.Key("bogus"));
+        Assert.AreEqual(propertiesChanged.Count, 0);
     }
 
     [TestMethod]
@@ -71,7 +75,7 @@ public class LayoutHotkeysModelTests
         Model.FreeKey(initialHotKey);
 
         Assert.AreEqual(string.Empty, Model.SelectedKeys[initialHotKey]);
-        Assert.AreEqual(PropertyChangedCalled, true);
+        CollectionAssert.AreEquivalent(new List<string>() { "SelectKey", "FreeKey" }, propertiesChanged);
     }
 
     [TestMethod]
@@ -88,6 +92,6 @@ public class LayoutHotkeysModelTests
             Assert.AreEqual(string.Empty, Model.SelectedKeys[key]);
         }
 
-        Assert.AreEqual(PropertyChangedCalled, true);
+        CollectionAssert.AreEquivalent(new List<string>() { "SelectKey", "SelectKey", "SelectKey", "CleanUp" }, propertiesChanged);
     }
 }

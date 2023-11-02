@@ -9,8 +9,6 @@ namespace UnitTestsFancyZonesEditor;
 [TestClass]
 public class LayoutHotkeysModelTests
 {
-    public bool PropertyChangedCalled { get; set; }
-
     public LayoutHotkeysModel Model { get; set; } = new LayoutHotkeysModel();
 
     private List<string> propertiesChanged = new();
@@ -28,7 +26,6 @@ public class LayoutHotkeysModelTests
     [TestCleanup]
     public void TestCleanup()
     {
-        PropertyChangedCalled = false;
         propertiesChanged.Clear();
     }
 
